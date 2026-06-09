@@ -677,7 +677,7 @@
 <!-- ══════════════════════════════════════════════
      SLIDE 5: MEDALLION ARCHITECTURE
 ══════════════════════════════════════════════ -->
-<div class="slide" data-notes="Start with the standard three-layer model (Bronze → Silver → Gold), then introduce Copper as an NZTA extension. The key message for each layer: Copper = untouched original, Bronze = structured raw record, Silver = analytical base, Gold = where you work. Ask the room: if a report number looked wrong, which layer would you trace back through? Answer: start at Gold, trace to Silver, then Bronze, then Copper if it exists for that domain. Point out that not all domains use every layer — procurement goes Bronze→Silver→Gold, Total Mobility goes Bronze→Copper→Silver→Gold. The naming convention in the Catalog makes this visible without needing to ask anyone. Spend time on the NZTA examples in the callout.">
+<div class="slide" data-notes="Focus this as a data flow story, not a layer-by-layer deep dive. Data moves one way through the medallion model: Bronze first, then optional Copper for some domains, then Silver, then Gold. Explain that trust increases at each step because each layer applies additional processing and quality checks. For business users, the takeaway is simple: start analysis from Gold, use Silver for deeper detail, and trace backwards through lineage when numbers look wrong. Mention Copper briefly as optional for specific domains such as Total Mobility, not as a separate concept they need to work in.">
   <div class="slide-header">
     <div class="db-wordmark"><span></span> Databricks</div>
     <div class="slide-tag">Architecture</div>
@@ -685,7 +685,7 @@
   <div class="slide-body">
     <div class="slide-eyebrow">Data Architecture</div>
     <div class="slide-title">Medallion <span class="accent">Architecture</span></div>
-    <div class="slide-lead">The Medallion Architecture organises data into layers, each representing a different level of quality and readiness. NZTA's implementation extends the standard three-layer model with an additional <strong>Copper</strong> layer for certain domains.</div>
+    <div class="slide-lead">The Medallion Architecture organises data into a one-way flow where data becomes more trusted at each step: <strong>Bronze → (optional Copper) → Silver → Gold</strong>. The goal is to move from raw ingestion to business-ready datasets for reporting and decisions.</div>
     <div class="medallion-strip" style="height:72px;margin-bottom:16px">
       <div class="med-layer med-bronze">
         <div class="med-label" style="font-size:17px">Bronze</div>
@@ -722,54 +722,11 @@
         <div class="card-body">Business rules applied, metrics pre-calculated, data shaped for specific use cases. Star schemas (dim/fact tables) live here. This layer powers dashboards, Genie Spaces, and reports. Start here for any analysis work.</div>
       </div>
     </div>
-    <div class="callout"><strong>In the NZTA Catalog:</strong> The layer is embedded in the schema name — <code style="font-family:var(--font-mono);font-size:11px">procurement_silver</code> → <code style="font-family:var(--font-mono);font-size:11px">procurement_gold</code>, <code style="font-family:var(--font-mono);font-size:11px">bronze_servicenow</code> → <code style="font-family:var(--font-mono);font-size:11px">gold_servicenow</code>, <code style="font-family:var(--font-mono);font-size:11px">copper_total_mobility</code> sits between Bronze and Silver for Total Mobility: Bronze → Copper → Silver → Gold. Not all domains have every layer — procurement and ServiceNow go Bronze → Silver → Gold directly.</div>
+    <div class="callout"><strong>In the NZTA Catalog:</strong> You can see this flow directly in schema names — for example <code style="font-family:var(--font-mono);font-size:11px">procurement_silver</code> → <code style="font-family:var(--font-mono);font-size:11px">procurement_gold</code> and <code style="font-family:var(--font-mono);font-size:11px">bronze_servicenow</code> → <code style="font-family:var(--font-mono);font-size:11px">gold_servicenow</code>. Some domains include an extra quality step like <code style="font-family:var(--font-mono);font-size:11px">copper_total_mobility</code>, but the principle is the same: data flows forward from raw to business-ready.</div>
   </div>
   <div class="slide-footer"></div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 5b: WHY NZTA USES COPPER
-══════════════════════════════════════════════ -->
-<div class="slide" data-notes="Correct the mental model up front: Copper sits BETWEEN Bronze and Silver, not before Bronze. Bronze is always the raw ingestion point. Copper is the domain consolidation step that sits after Bronze and before Silver. For Total Mobility: Bronze holds one record per operator submission event. Multiple operators submit separately — there is no merged view at Bronze. Copper is where those separate operator feeds are combined into a single coherent dataset for the Total Mobility domain. The practical reason this matters: subsidy payment reporting draws on ALL operators' data together. You need a single merged view before you can apply validation and produce aggregated figures. That's what Copper provides. The audience doesn't need to work in Copper directly — but they should know it exists in the pipeline between Bronze and Silver for this domain, and that it's the reason the Total Mobility Gold data can be trusted across all operators.">
-  <div class="slide-header">
-    <div class="db-wordmark"><span></span> Databricks</div>
-    <div class="slide-tag">Architecture</div>
-  </div>
-  <div class="slide-body">
-    <div class="slide-eyebrow">NZTA Platform Design</div>
-    <div class="slide-title">The <span class="accent">Copper</span> Layer — Where It Sits and Why</div>
-    <div class="two-col">
-      <div>
-        <p>Most Databricks implementations use three layers. NZTA adds a <strong>Copper</strong> layer <em>between Bronze and Silver</em> for certain domains — currently Total Mobility (<code style="font-family:var(--font-mono);font-size:12px">copper_total_mobility</code>).</p>
-        <div class="card" style="border-left-color:#CD7F32;margin:14px 0">
-          <div class="card-title" style="color:#CD7F32">What Bronze holds</div>
-          <div class="card-body">Raw trip records ingested as Delta tables, one record per event as it arrived from each operator source. No deduplication, no merging across sources. The permanent audit record. If anything downstream looks wrong, Bronze is always the starting point for investigation.</div>
-        </div>
-        <div class="card" style="border-left-color:#B87333;margin:14px 0">
-          <div class="card-title" style="color:#B87333">What Copper does</div>
-          <div class="card-body">Takes structured Bronze records and applies data quality validation. Records that meet quality rules pass through to Silver. Records that fail are flagged or quarantined — held for review rather than silently dropped. Copper is the quality gate between raw ingestion and cleansed analytical data.</div>
-        </div>
-        <div class="callout"><strong>Why this matters:</strong> Total Mobility subsidies are calculated from trip counts. Copper is where invalid trip records — duplicates, incomplete submissions, out-of-range values — are identified and quarantined before they reach Silver. This means the figures in Gold are based on validated data only, with a clear audit trail of what was accepted and what was rejected.</div>
-      </div>
-      <div>
-        <p><strong>The Total Mobility flow:</strong></p>
-        <ul class="step-list" style="margin-bottom:18px">
-          <li><div class="step-num" style="background:#CD7F32">Br</div><div><strong>Bronze</strong> — Operator trip data ingested as Delta tables. One record per event, per source. No changes. Permanent audit record of every submission received.</div></li>
-          <li><div class="step-num" style="background:#B87333">Cu</div><div><strong>Copper</strong> — Quality validation applied to Bronze records. Valid trips pass through. Invalid records (duplicates, missing fields, out-of-range values) quarantined in <code style="font-family:var(--font-mono);font-size:11px">copper_total_mobility</code> for review. Clear accept/reject audit trail.</div></li>
-          <li><div class="step-num" style="background:#888">Ag</div><div><strong>Silver</strong> — Business rules applied. Trip records validated against eligibility criteria, client and operator dimensions joined. Clean analytical base.</div></li>
-          <li><div class="step-num" style="background:#D4A017">Au</div><div><strong>Gold</strong> — Aggregated by operator, region, trip type, and period. Powers Genie Spaces and dashboards. The figures used for subsidy calculations and performance reporting.</div></li>
-        </ul>
-        <div class="term-grid" style="gap:8px">
-          <div class="term-row"><div class="term-key" style="background:#B87333;font-size:11px">Copper use case</div><div class="term-val">Regulatory audit, reprocessing from source, dispute resolution on operator submissions.</div></div>
-          <div class="term-row"><div class="term-key" style="font-size:11px">When NOT to use Copper</div><div class="term-val">Copper is not for analysis. It's a pipeline-internal staging layer. Always start from Silver or Gold for any reporting or analytical work.</div></div>
-          <div class="term-row"><div class="term-key" style="font-size:11px">Other domains</div><div class="term-val">Procurement, PACE, and ServiceNow start at Bronze — no Copper layer. The pattern is applied selectively where audit depth is critical.</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="slide-footer"></div>
-</div>
 
 <!-- ══════════════════════════════════════════════
      SLIDE 7: LAYERS IN PLAIN LANGUAGE
