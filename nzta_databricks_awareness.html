@@ -638,11 +638,11 @@
       </div>
       <div class="card navy">
         <div class="card-title">Data Lake</div>
-        <div class="card-body">Raw files stored cheaply in cloud storage. Very flexible — any format, any structure. Without governance layers on top, it becomes difficult to manage and trust.</div>
+        <div class="card-body">Raw files stored cheaply in cloud storage. Very flexible — any format, any structure. Without governance layers on top, it becomes difficult to manage and trust. <strong>Parquet</strong> is a common format here: a columnar file format that is compact and fast for analytics.</div>
       </div>
       <div class="card red">
         <div class="card-title">Data Lakehouse</div>
-        <div class="card-body">Files stored cost-effectively in cloud storage, with warehouse-quality query performance, governance, and reliability layered on top. That's what Databricks delivers.</div>
+        <div class="card-body">Files stored cost-effectively in cloud storage, with warehouse-quality query performance, governance, and reliability layered on top. That's what Databricks delivers. <strong>Delta</strong> is the table format used in Databricks lakehouses, adding ACID transactions, version history (time travel), and reliable updates/deletes on top of Parquet files.</div>
       </div>
     </div>
     <div class="callout"><strong>For NZTA:</strong> Your data — from road sensors, asset management systems, financial feeds, and external sources — lands in Databricks, gets processed into clean, trusted datasets, and is then available for analysis, reporting, and AI use cases.</div>
@@ -666,8 +666,6 @@
       <div class="term-row"><div class="term-key">Cluster</div><div class="term-val">The computing engine that processes your code. Clusters start, run your job, and stop automatically. You don't manage the hardware.</div></div>
       <div class="term-row"><div class="term-key">SQL Warehouse</div><div class="term-val">A cluster optimised specifically for running SQL queries and powering dashboards. This is what analysts connect to when running queries or using Genie.</div></div>
       <div class="term-row"><div class="term-key">Notebook</div><div class="term-val">A document that combines code, explanations, and live output. Think of it as a living analysis document — part script, part report.</div></div>
-      <div class="term-row"><div class="term-key">Parquet</div><div class="term-val">A columnar file format used to store data efficiently for analytics. It is compact, fast to read, and works well for large datasets.</div></div>
-      <div class="term-row"><div class="term-key">Delta</div><div class="term-val">A table format built on top of Parquet that adds reliability features like ACID transactions, version history (time travel), and scalable updates/deletes.</div></div>
       <div class="term-row"><div class="term-key">Catalog / Schema / Table</div><div class="term-val">Three-level data hierarchy. Catalog = organisation-level container. Schema = topic area or domain. Table = the actual dataset you query.</div></div>
       <div class="term-row"><div class="term-key">Unity Catalog</div><div class="term-val">The governance layer that controls who can access what data across the entire platform. Access control, lineage tracking, tagging, and auditing all live here.</div></div>
       <div class="term-row"><div class="term-key">Repos</div><div class="term-val">Version-controlled code storage, connected to Git (Azure DevOps). Where data engineers keep and manage the code that builds your data pipelines.</div></div>
